@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Seguimiento de Sedes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .card-sede {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card-sede:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Estilos para el Modal */
+        #modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        #modal-panel {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .tier-next-goal {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Dashboard de Seguimiento de Sedes</h1>
+            <p class="text-gray-500">Haz clic en una sede para ver su progreso, bonos y una frase motivadora.</p>
+        </header>
+
+        <!-- Resumen General -->
+        <div id="resumen-general" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- El resumen general se insertará aquí -->
+        </div>
+
+        <!-- Listado de Sedes -->
+        <div id="lista-sedes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Las tarjetas de las sedes se insertarán aquí -->
+        </div>
+    </div>
+
+    <!-- Modal para detalles de la sede -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
+        <div id="modal-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl transform scale-95 opacity-0" onclick="event.stopPropagation()">
+            <div class="p-8 md:p-10">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-sm font-medium text-blue-600">Detalle de Sede</p>
+                        <h2 id="modal-sede-nombre" class="text-4xl font-extrabold text-gray-900"></h2>
+                    </div>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <div id="modal-content" class="space-y-8">
+                    <!-- El contenido del modal se generará dinámicamente aquí -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATOS DE LAS SEDES (BASADO EN EL ARCHIVO EXCEL PROPORCIONADO) ---
+        const sedes = [
+            { id: 34, nombre: 'San Bernardo', meta: 7000000, avance: 9859000 }, { id: 28, nombre: 'Puerto Montt', meta: 29388800, avance: 39850000 }, { id: 26, nombre: 'Providencia', meta: 7000000, avance: 9407300 }, { id: 12, nombre: 'Gran Avenida', meta: 8577000, avance: 10975000 }, { id: 7, nombre: 'Concepción', meta: 24281600, avance: 30798264 }, { id: 11, nombre: 'Curicó', meta: 14079184, avance: 17555600 }, { id: 13, nombre: 'Independencia', meta: 31707200, avance: 37835400 }, { id: 1, nombre: 'Alameda', meta: 16464000, avance: 19100000 }, { id: 42, nombre: 'Valparaíso', meta: 28224000, avance: 32500000 }, { id: 39, nombre: 'Talca', meta: 66064500, avance: 71668008 }, { id: 4, nombre: 'Arica', meta: 12315000, avance: 12534900 }, { id: 8, nombre: 'Copiapó', meta: 20144880, avance: 19606300 }, { id: 44, nombre: 'Viña del mar', meta: 13261920, avance: 12750000 }, { id: 10, nombre: 'Coronel', meta: 52200000, avance: 48256289 }, { id: 15, nombre: 'La Florida', meta: 25519984, avance: 23427500 }, { id: 22, nombre: 'Melipilla', meta: 39446400, avance: 35450000 }, { id: 24, nombre: 'Osorno', meta: 11200000, avance: 10000000 }, { id: 3, nombre: 'Antofagasta', meta: 7000000, avance: 4950000 }, { id: 40, nombre: 'Temuco', meta: 68257690, avance: 45304000 }, { id: 18, nombre: 'Linares', meta: 45000000, avance: 26000000 }, { id: 36, nombre: 'San Fernando', meta: 39854000, avance: 19800000 }, { id: 43, nombre: 'Villa Alemana', meta: 52932800, avance: 24890000 }, { id: 27, nombre: 'Puente Alto', meta: 30492000, avance: 11880000 }, { id: 5, nombre: 'Calama', meta: 38036000, avance: 14450000 }, { id: 6, nombre: 'Chillán', meta: 18360800, avance: 6116350 }, { id: 17, nombre: 'Las Condes', meta: 10500000, avance: 3150000 }, { id: 19, nombre: 'Los Andes', meta: 15456807, avance: 6000000 }, { id: 41, nombre: 'Valdivia', meta: 56006384, avance: 10234000 }, { id: 2, nombre: 'Alto Hospicio', meta: 7000000, avance: 0 }, { id: 9, nombre: 'Coquimbo', meta: 7000000, avance: 0 }, { id: 14, nombre: 'Iquique', meta: 8373120, avance: 0 }, { id: 16, nombre: 'La Serena', meta: 7000000, avance: 0 }, { id: 20, nombre: 'Los Ángeles', meta: 7767200, avance: 0 }, { id: 21, nombre: 'Maipú', meta: 38080000, avance: 0 }, { id: 23, nombre: 'Ñuñoa', meta: 10846080, avance: 0 }, { id: 25, nombre: 'Ovalle', meta: 20160000, avance: 0 }, { id: 29, nombre: 'Punta Arenas', meta: 7000000, avance: 0 }, { id: 30, nombre: 'Quilicura', meta: 36657550, avance: 0 }, { id: 31, nombre: 'Quillota', meta: 7728000, avance: 0 }, { id: 32, nombre: 'Quilpué', meta: 7000000, avance: 0 }, { id: 33, nombre: 'Rancagua', meta: 7000000, avance: 0 }, { id: 35, nombre: 'San Felipe', meta: 11936575, avance: 0 }, { id: 37, nombre: 'Santa Cruz', meta: 22497000, avance: 0 }, { id: 38, nombre: 'Talagante', meta: 7000000, avance: 0 }
+        ];
+
+        // --- FUNCIONES AUXILIARES ---
+        const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
+
+        const getProgressColor = (percent) => {
+            if (percent >= 110) return 'bg-purple-600';
+            if (percent >= 100) return 'bg-green-500';
+            if (percent >= 90) return 'bg-lime-500';
+            if (percent >= 80) return 'bg-yellow-400';
+            if (percent >= 70) return 'bg-orange-400';
+            return 'bg-slate-400';
+        };
+        
+        const getMotivationalMessage = (percent) => {
+            if (percent >= 110) return "¡Leyenda! Desbloqueaste todos los bonos. Eres una máquina.";
+            if (percent >= 100) return `¡Meta cumplida! Ahora a seguir sumando para el bono máximo.`;
+            if (percent >= 70) return "¡Vamo a calmarno! Falta poquito, no te caigas ahora.";
+            if (percent >= 30) return "Estás como el 'Zafrada', te falta 'un palito'. ¡A vender!";
+            return "Vamos que se puede... pero póngale weno po'.";
+        };
+        
+        const bonusTiersConfig = [
+            { min: 70, max: 79.999, rate: 0.01, label: '70% - 79%' },
+            { min: 80, max: 89.999, rate: 0.015, label: '80% - 89%' },
+            { min: 90, max: 99.999, rate: 0.02, label: '90% - 99%' },
+            { min: 100, max: 109.999, rate: 0.03, label: '100% - 109%' },
+            { min: 110, max: Infinity, rate: 0.035, label: '110% o más' }
+        ];
+
+        const calculateBonusTiers = (avance, meta) => {
+            const currentPercent = meta > 0 ? (avance / meta) * 100 : 0;
+            let nextGoalMarked = false;
+
+            return bonusTiersConfig.map(tier => {
+                const requiredSales = meta * (tier.min / 100);
+                const potentialBonus = requiredSales * tier.rate;
+                let status = 'locked';
+
+                if (currentPercent >= tier.min && currentPercent <= tier.max) {
+                    status = 'active';
+                } else if (currentPercent > tier.max) {
+                    status = 'achieved';
+                } else if (!nextGoalMarked && currentPercent < tier.min) {
+                    status = 'nextGoal';
+                    nextGoalMarked = true;
+                }
+                
+                return { ...tier, requiredSales, potentialBonus, status };
+            });
+        };
+
+        // --- LÓGICA DE RENDERIZADO ---
+        const listaSedesEl = document.getElementById('lista-sedes');
+        const resumenGeneralEl = document.getElementById('resumen-general');
+
+        function renderDashboard() {
+            if (!listaSedesEl || !resumenGeneralEl) return;
+            listaSedesEl.innerHTML = '';
+            resumenGeneralEl.innerHTML = '';
+            
+            const totalMeta = sedes.reduce((sum, sede) => sum + sede.meta, 0);
+            const totalAvance = sedes.reduce((sum, sede) => sum + sede.avance, 0);
+            const totalPercent = totalMeta > 0 ? (totalAvance / totalMeta) * 100 : 0;
+
+            resumenGeneralEl.innerHTML = `<div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Meta Total</h3><p class="text-3xl font-bold text-gray-800">${formatCurrency(totalMeta)}</p></div><div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Avance Total</h3><p class="text-3xl font-bold text-gray-800">${formatCurrency(totalAvance)}</p></div><div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Cumplimiento General</h3><p class="text-3xl font-bold ${getProgressColor(totalPercent).replace('bg-','text-')}">${totalPercent.toFixed(1)}%</p></div>`;
+
+            sedes.sort((a, b) => {
+                const percentA = a.meta > 0 ? (a.avance / a.meta) * 100 : 0;
+                const percentB = b.meta > 0 ? (b.avance / b.meta) * 100 : 0;
+                return percentB - percentA;
+            });
+
+            sedes.forEach(sede => {
+                const percent = sede.meta > 0 ? (sede.avance / sede.meta) * 100 : 0;
+                const card = document.createElement('div');
+                card.className = 'card-sede bg-white p-5 rounded-xl shadow cursor-pointer';
+                card.onclick = () => openModal(sede.id);
+                card.innerHTML = `<div class="flex justify-between items-center mb-2"><h3 class="font-bold text-lg text-gray-800">${sede.nombre}</h3><span class="text-sm font-semibold px-2 py-1 rounded-full ${percent >= 100 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${percent.toFixed(0)}%</span></div><p class="text-sm text-gray-500 mb-3">Meta: ${formatCurrency(sede.meta)}</p><div class="w-full bg-gray-200 rounded-full h-2.5"><div class="h-2.5 rounded-full ${getProgressColor(percent)}" style="width: ${Math.min(percent, 100)}%"></div></div>`;
+                listaSedesEl.appendChild(card);
+            });
+        }
+
+        // --- LÓGICA DEL MODAL ---
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContentEl = document.getElementById('modal-content');
+
+        const icons = {
+            achieved: `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+            active: `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            nextGoal: `<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            locked: `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>`
+        };
+        
+        window.openModal = (sedeId) => {
+            const sede = sedes.find(s => s.id === sedeId);
+            if (!sede) return;
+
+            document.getElementById('modal-sede-nombre').textContent = sede.nombre;
+            const percent = sede.meta > 0 ? (sede.avance / sede.meta) * 100 : 0;
+            const bonusTiers = calculateBonusTiers(sede.avance, sede.meta);
+
+            const activeTier = bonusTiers.find(t => t.status === 'active');
+            const nextTier = bonusTiers.find(t => t.status === 'nextGoal');
+
+            let nextGoalHTML = '';
+            if (nextTier) {
+                const needed = nextTier.requiredSales - sede.avance;
+                nextGoalHTML = `<div class="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl text-center flex flex-col justify-center h-full">
+                    <p class="text-sm text-blue-600 uppercase">Falta para Siguiente Bono</p>
+                    <p class="text-2xl font-bold text-blue-800">${formatCurrency(needed)}</p>
+                    <p class="text-sm text-blue-500">para el bono del ${nextTier.label}</p>
+                </div>`;
+            } else {
+                 nextGoalHTML = `<div class="bg-purple-50 border-2 border-purple-200 p-4 rounded-xl text-center flex flex-col justify-center h-full">
+                    <p class="text-sm text-purple-600 uppercase">¡Felicidades!</p>
+                    <p class="text-xl font-bold text-purple-800">Alcanzaste el bono máximo</p>
+                </div>`;
+            }
+
+            const metricsHTML = `<div class="bg-slate-100 p-6 rounded-xl">
+                 <h4 class="text-md font-semibold text-gray-700 mb-4 text-center">Estado Actual</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl text-center flex flex-col justify-center h-full">
+                        <p class="text-sm text-gray-500 uppercase">Avance Actual</p>
+                        <p class="text-2xl font-bold text-gray-800">${formatCurrency(sede.avance)}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl text-center flex flex-col justify-center h-full">
+                         <p class="text-sm text-green-600 uppercase">Bono Actual</p>
+                         <p class="text-2xl font-bold text-green-700">${activeTier ? activeTier.label : 'Ninguno'}</p>
+                    </div>
+                    ${nextGoalHTML}
+                </div>
+            </div>`;
+
+            const bonusTableHTML = `<div>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Escalera de Bonos</h4>
+                <div class="space-y-2 text-sm">
+                    ${bonusTiers.map(tier => {
+                        const statusClasses = {
+                            achieved: 'bg-slate-50 text-gray-400',
+                            active: 'bg-green-50 text-green-800 border-2 border-green-300',
+                            nextGoal: 'bg-blue-50 text-blue-800 border-2 border-blue-300 tier-next-goal',
+                            locked: 'bg-slate-50 text-gray-500'
+                        };
+                        const bonusPercentText = (tier.rate * 100).toLocaleString('es-CL', { maximumFractionDigits: 1 });
+
+                        return `<div class="flex items-center p-3 rounded-lg transition-all duration-300 ${statusClasses[tier.status]}">
+                            <div class="w-8 flex-shrink-0">${icons[tier.status]}</div>
+                            <div class="flex-1 ml-3">
+                                <span class="font-bold ${tier.status === 'achieved' ? 'line-through' : ''}">Bono ${tier.label}</span>
+                                <span class="text-xs block ${tier.status === 'achieved' ? 'line-through' : ''}">Venta mín: ${formatCurrency(tier.requiredSales)}</span>
+                            </div>
+                            <div class="text-right ml-2">
+                                <span class="font-bold text-lg ${tier.status === 'achieved' ? 'line-through' : ''}">${formatCurrency(tier.potentialBonus)}</span>
+                                 <span class="text-xs block ${tier.status === 'achieved' ? 'line-through' : ''}">Bono ${bonusPercentText}%</span>
+                            </div>
+                        </div>`
+                    }).join('')}
+                </div>
+            </div>`;
+            
+            const message = getMotivationalMessage(percent);
+            const motivationHTML = `<div class="mt-6 text-center bg-slate-100 p-6 rounded-xl flex items-center justify-center min-h-[8rem]">
+                <p class="text-xl font-medium text-gray-600 italic">"${message}"</p>
+            </div>`;
+
+            modalContentEl.innerHTML = `
+                ${metricsHTML}
+                ${bonusTableHTML}
+                ${motivationHTML}
+            `;
+
+            modalBackdrop.classList.remove('hidden');
+            setTimeout(() => {
+                modalBackdrop.classList.remove('opacity-0');
+                document.getElementById('modal-panel').classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        };
+
+        window.closeModal = () => {
+            const backdrop = document.getElementById('modal-backdrop');
+            const panel = document.getElementById('modal-panel');
+            backdrop.classList.add('opacity-0');
+            panel.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        };
+        
+        document.addEventListener('DOMContentLoaded', renderDashboard);
+    </script>
+</body>
+</html>

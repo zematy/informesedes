@@ -3,14 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Seguimiento de Sedes</title>
+    <title>Informes de Rendimiento y Seguimiento de Sedes</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* Estilos Generales */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5;
         }
+
+        /* Estilos Pestañas */
+        .tab-button {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .tab-button.active {
+            background-color: white;
+            color: #1d4ed8;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilos Informe 1 */
+        .main-card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .category-card {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            height: 100%;
+        }
+        .sede-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color, #f3f4f6);
+            font-size: 0.875rem;
+        }
+        .sede-item:last-child {
+            border-bottom: none;
+        }
+        .compact-list-item {
+            padding-bottom: 0.5rem;
+            break-inside: avoid;
+        }
+
+        /* Estilos Dashboard 2 */
         .card-sede {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
@@ -18,7 +68,6 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        /* Estilos para el Modal */
         #modal-backdrop {
             transition: opacity 0.3s ease-in-out;
         }
@@ -29,28 +78,92 @@
             transform: scale(1.02);
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
         }
+
+        /* Optimización para impresión */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                background-color: white;
+            }
+            .no-print {
+                display: none;
+            }
+            .tab-content {
+                display: block !important; /* Muestra ambos contenidos al imprimir */
+            }
+            .main-card, .card-sede {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                padding: 0 !important;
+                margin: 0 0 2rem 0 !important;
+                max-width: 100% !important;
+            }
+            .category-card, .kpi-card-print {
+                border: 1px solid #ccc !important;
+                break-inside: avoid;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Dashboard de Seguimiento de Sedes</h1>
-            <p class="text-gray-500">Haz clic en una sede para ver su progreso, bonos y una frase motivadora.</p>
-        </header>
-
-        <!-- Resumen General -->
-        <div id="resumen-general" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- El resumen general se insertará aquí -->
+        <!-- Navegación de Pestañas -->
+        <div class="mb-8 bg-gray-200 p-2 rounded-xl flex space-x-2 max-w-md mx-auto no-print">
+            <button onclick="switchTab('informe')" id="btn-informe" class="tab-button w-full text-center font-semibold text-gray-600 p-3 rounded-lg">Informe de Rendimiento</button>
+            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-button w-full text-center font-semibold text-gray-600 p-3 rounded-lg">Dashboard de Seguimiento</button>
         </div>
 
-        <!-- Listado de Sedes -->
-        <div id="lista-sedes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <!-- Las tarjetas de las sedes se insertarán aquí -->
+        <!-- Contenido Pestaña 1: Informe de Rendimiento -->
+        <div id="informe" class="tab-content">
+            <div class="main-card p-6 md:p-8">
+                <header class="mb-6 text-center border-b pb-6">
+                    <h1 class="text-3xl lg:text-4xl font-black text-gray-800">Informe de Rendimiento de Sedes</h1>
+                    <p class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 23 de Junio de 2025 (a 3.5 meses del cierre de año)</p>
+                </header>
+                <section class="mb-8 border-b pb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Resumen General</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="kpi-card-print bg-blue-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-blue-800">META TOTAL</h3><p class="text-2xl font-bold text-blue-600">$1.860M</p></div>
+                            <div class="kpi-card-print bg-green-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-green-800">AVANCE TOTAL</h3><p class="text-2xl font-bold text-green-600">$1.388,8M</p></div>
+                            <div class="kpi-card-print bg-red-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-red-800">BRECHA</h3><p class="text-2xl font-bold text-red-600">$471,2M</p></div>
+                            <div class="kpi-card-print bg-yellow-100 p-4 rounded-lg"><h3 class="text-sm font-semibold text-yellow-800">AVANCE GRAL.</h3><p class="text-3xl font-black text-yellow-700">75%</p></div>
+                        </div>
+                        <div><div class="h-[250px] md:h-[300px] w-full flex items-center justify-center"><canvas id="statusDonutChart"></canvas></div></div>
+                    </div>
+                </section>
+                <section>
+                     <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Clasificación Detallada por Sede</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div id="destacadas-card" class="category-card bg-green-50 border border-green-200"><h3 class="text-xl font-bold text-center mb-4 text-green-800">🏆 Destacadas (>100%)</h3><div id="destacadas-list"></div></div>
+                        <div id="encamino-card" class="category-card bg-yellow-50 border border-yellow-300"><h3 class="text-xl font-bold text-center mb-4 text-yellow-800">👍 En Camino (75-99%)</h3><div id="encamino-list"></div></div>
+                        <div id="alerta-card" class="category-card bg-orange-50 border border-orange-300"><h3 class="text-xl font-bold text-center mb-4 text-orange-800">⚠️ Alerta (50-74%)</h3><div id="alerta-list"></div></div>
+                    </div>
+                    <div id="critico-card" class="category-card bg-red-50 border border-red-200 mt-6">
+                         <h3 class="text-xl font-bold text-center mb-4 text-red-800">🚨 Crítico (&lt;50%)</h3>
+                         <div id="critico-list"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Contenido Pestaña 2: Dashboard de Seguimiento -->
+        <div id="dashboard" class="tab-content">
+             <header class="mb-8 text-center">
+                 <h1 class="text-3xl font-bold text-gray-800">Dashboard de Seguimiento de Sedes</h1>
+                 <p class="text-gray-500">Haz clic en una sede para ver su progreso, bonos y una frase motivadora.</p>
+             </header>
+             <div id="resumen-general" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"></div>
+             <div id="lista-sedes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         </div>
     </div>
 
-    <!-- Modal para detalles de la sede -->
+    <!-- Modal para detalles de la sede (del dashboard) -->
     <div id="modal-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden flex items-center justify-center z-50 p-4" onclick="closeModal()">
         <div id="modal-panel" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl transform scale-95 opacity-0" onclick="event.stopPropagation()">
             <div class="p-8 md:p-10">
@@ -63,67 +176,147 @@
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-
-                <div id="modal-content" class="space-y-8">
-                    <!-- El contenido del modal se generará dinámicamente aquí -->
-                </div>
-
+                <div id="modal-content" class="space-y-8"></div>
             </div>
         </div>
     </div>
 
+
     <script>
-        // --- DATOS DE LAS SEDES (BASADO EN EL ARCHIVO EXCEL PROPORCIONADO) ---
-        const sedes = [
-            { id: 1, nombre: 'Alameda', meta: 16464000, avance: 19100000 },
-            { id: 2, nombre: 'Alto Hospicio', meta: 7000000, avance: 0 },
-            { id: 3, nombre: 'Antofagasta', meta: 7000000, avance: 4950000 },
-            { id: 4, nombre: 'Arica', meta: 12315000, avance: 12534900 },
-            { id: 5, nombre: 'Calama', meta: 38036000, avance: 14450000 },
-            { id: 6, nombre: 'Chillán', meta: 18360800, avance: 6116350 },
-            { id: 7, nombre: 'Concepción', meta: 24281600, avance: 30798264 },
-            { id: 8, nombre: 'Copiapó', meta: 20144880, avance: 19606300 },
-            { id: 9, nombre: 'Coquimbo', meta: 7000000, avance: 0 },
-            { id: 10, nombre: 'Coronel', meta: 52200000, avance: 48256289 },
-            { id: 11, nombre: 'Curicó', meta: 14079184, avance: 17555600 },
-            { id: 12, nombre: 'Gran Avenida', meta: 8577000, avance: 10975000 },
-            { id: 13, nombre: 'Independencia', meta: 31707200, avance: 37835400 },
-            { id: 14, nombre: 'Iquique', meta: 8373120, avance: 0 },
-            { id: 15, nombre: 'La Florida', meta: 25519984, avance: 23427500 },
-            { id: 16, nombre: 'La Serena', meta: 7000000, avance: 0 },
-            { id: 17, nombre: 'Las Condes', meta: 10500000, avance: 7813600 },
-            { id: 18, nombre: 'Linares', meta: 45000000, avance: 26000000 },
-            { id: 19, nombre: 'Los Andes', meta: 15456807, avance: 6000000 },
-            { id: 20, nombre: 'Los Ángeles', meta: 7767200, avance: 0 },
-            { id: 21, nombre: 'Maipú', meta: 38080000, avance: 0 },
-            { id: 22, nombre: 'Melipilla', meta: 39446400, avance: 35450000 },
-            { id: 23, nombre: 'Ñuñoa', meta: 10846080, avance: 0 },
-            { id: 24, nombre: 'Osorno', meta: 11200000, avance: 10000000 },
-            { id: 25, nombre: 'Ovalle', meta: 20160000, avance: 0 },
-            { id: 26, nombre: 'Providencia', meta: 7000000, avance: 9407300 },
-            { id: 27, nombre: 'Puente Alto', meta: 30492000, avance: 11880000 },
-            { id: 28, nombre: 'Puerto Montt', meta: 29388800, avance: 39850000 },
-            { id: 29, nombre: 'Punta Arenas', meta: 7000000, avance: 0 },
-            { id: 30, nombre: 'Quilicura', meta: 36657550, avance: 0 },
-            { id: 31, nombre: 'Quillota', meta: 7728000, avance: 0 },
-            { id: 32, nombre: 'Quilpué', meta: 7000000, avance: 0 },
-            { id: 33, nombre: 'Rancagua', meta: 7000000, avance: 0 },
-            { id: 34, nombre: 'San Bernardo', meta: 7000000, avance: 9859000 },
-            { id: 35, nombre: 'San Felipe', meta: 11936575, avance: 0 },
-            { id: 36, nombre: 'San Fernando', meta: 39854000, avance: 19800000 },
-            { id: 37, nombre: 'Santa Cruz', meta: 22497000, avance: 0 },
-            { id: 38, nombre: 'Talagante', meta: 7000000, avance: 0 },
-            { id: 39, nombre: 'Talca', meta: 66064500, avance: 71668008 },
-            { id: 40, nombre: 'Temuco', meta: 68257690, avance: 46204000 },
-            { id: 41, nombre: 'Valdivia', meta: 56006384, avance: 10234000 },
-            { id: 42, nombre: 'Valparaíso', meta: 28224000, avance: 32500000 },
-            { id: 43, nombre: 'Villa Alemana', meta: 52932800, avance: 24890000 },
-            { id: 44, nombre: 'Viña del mar', meta: 13261920, avance: 12750000 }
-        ];
+        // --- DATA COMPARTIDA (UNIFICADA) ---
+        const performanceData = [
+            { id: 1, sede: "Alameda", meta: 16464000, avance: 19100000 },
+            { id: 2, sede: "Alto Hospicio", meta: 7000000, avance: 0 },
+            { id: 3, sede: "Antofagasta", meta: 7000000, avance: 4950000 },
+            { id: 4, sede: "Arica", meta: 12315000, avance: 12534900 },
+            { id: 5, sede: "Calama", meta: 38036000, avance: 14450000 },
+            { id: 6, sede: "Chillán", meta: 18360800, avance: 6116350 },
+            { id: 7, sede: "Concepción", meta: 24281600, avance: 30798264 },
+            { id: 8, sede: "Copiapó", meta: 20144880, avance: 19606300 },
+            { id: 9, sede: "Coquimbo", meta: 7000000, avance: 0 },
+            { id: 10, sede: "Coronel", meta: 52200000, avance: 48256289 },
+            { id: 11, sede: "Curicó", meta: 14079184, avance: 17555600 },
+            { id: 12, sede: "Gran Avenida", meta: 8577000, avance: 10975000 },
+            { id: 13, sede: "Independencia", meta: 31707200, avance: 37835400 },
+            { id: 14, sede: "Iquique", meta: 8373120, avance: 0 },
+            { id: 15, sede: "La Florida", meta: 25519984, avance: 23427500 },
+            { id: 16, sede: "La Serena", meta: 7000000, avance: 0 },
+            { id: 17, sede: "Las Condes", meta: 10500000, avance: 7813600 },
+            { id: 18, sede: "Linares", meta: 45000000, avance: 26000000 },
+            { id: 19, sede: "Los Andes", meta: 15456807, avance: 6000000 },
+            { id: 20, sede: "Los Ángeles", meta: 7767200, avance: 0 },
+            { id: 21, sede: "Maipú", meta: 38080000, avance: 0 },
+            { id: 22, sede: "Melipilla", meta: 39446400, avance: 35450000 },
+            { id: 23, sede: "Ñuñoa", meta: 10846080, avance: 0 },
+            { id: 24, sede: "Osorno", meta: 11200000, avance: 10000000 },
+            { id: 25, sede: "Ovalle", meta: 20160000, avance: 0 },
+            { id: 26, sede: "Providencia", meta: 7000000, avance: 9407300 },
+            { id: 27, sede: "Puente Alto", meta: 30492000, avance: 11880000 },
+            { id: 28, sede: "Puerto Montt", meta: 29388800, avance: 39850000 },
+            { id: 29, sede: "Punta Arenas", meta: 7000000, avance: 0 },
+            { id: 30, sede: "Quilicura", meta: 36657550, avance: 0 },
+            { id: 31, sede: "Quillota", meta: 7728000, avance: 0 },
+            { id: 32, sede: "Quilpué", meta: 7000000, avance: 0 },
+            { id: 33, sede: "Rancagua", meta: 7000000, avance: 0 },
+            { id: 34, sede: "San Bernardo", meta: 7000000, avance: 9859000 },
+            { id: 35, sede: "San Felipe", meta: 11936575, avance: 0 },
+            { id: 36, sede: "San Fernando", meta: 39854000, avance: 19800000 },
+            { id: 37, sede: "Santa Cruz", meta: 22497000, avance: 0 },
+            { id: 38, sede: "Talagante", meta: 7000000, avance: 0 },
+            { id: 39, sede: "Talca", meta: 66064500, avance: 71668008 },
+            { id: 40, sede: "Temuco", meta: 68257690, avance: 46204000 },
+            { id: 41, sede: "Valdivia", meta: 56006384, avance: 10234000 },
+            { id: 42, sede: "Valparaíso", meta: 28224000, avance: 32500000 },
+            { id: 43, sede: "Villa Alemana", meta: 52932800, avance: 24890000 },
+            { id: 44, sede: "Viña del mar", meta: 13261920, avance: 12750000 }
+        ].map(d => ({...d, percent: d.meta > 0 ? (d.avance / d.meta) * 100 : 0 }));
 
-        // --- FUNCIONES AUXILIARES ---
+
+        // --- LÓGICA DE PESTAÑAS ---
+        function switchTab(tabName) {
+            document.getElementById('informe').classList.remove('active');
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('btn-informe').classList.remove('active');
+            document.getElementById('btn-dashboard').classList.remove('active');
+
+            document.getElementById(tabName).classList.add('active');
+            document.getElementById('btn-' + tabName).classList.add('active');
+        }
+
+
+        // --- LÓGICA INFORME 1 ---
+        function initInforme() {
+            // Filtrar y ordenar datos
+            const destacadasSedes = performanceData.filter(d => d.percent >= 100).sort((a,b) => b.percent - a.percent);
+            const enCaminoSedes = performanceData.filter(d => d.percent >= 75 && d.percent < 100).sort((a,b) => b.percent - a.percent);
+            const alertaSedes = performanceData.filter(d => d.percent >= 50 && d.percent < 75).sort((a,b) => b.percent - a.percent);
+            const criticoSedes = performanceData.filter(d => d.percent < 50).sort((a,b) => b.percent - a.percent);
+
+            // Poblar listas
+            populateVerticalList('destacadas-list', destacadasSedes, 'text-green-700', '#bbf7d0');
+            populateVerticalList('encamino-list', enCaminoSedes, 'text-yellow-700', '#fef08a');
+            populateVerticalList('alerta-list', alertaSedes, 'text-orange-700', '#fed7aa');
+            populateCompactList('critico-list', criticoSedes, 'text-red-700');
+
+            // Crear Gráfico
+            const statusCounts = { 'Destacadas': destacadasSedes.length, 'En Camino': enCaminoSedes.length, 'Alerta': alertaSedes.length, 'Crítico': criticoSedes.length };
+            const ctxStatus = document.getElementById('statusDonutChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`),
+                    datasets: [{
+                        label: '# de Sedes',
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#16a34a', '#ca8a04', '#f97316', '#dc2626'],
+                        borderColor: '#ffffff',
+                        borderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { padding: 20, font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        function populateVerticalList(containerId, data, colorClass, borderColor) {
+            const container = document.getElementById(containerId);
+            container.style.setProperty('--border-color', borderColor);
+            if (data.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes.</p>`;
+                return;
+            }
+            container.innerHTML = data.map(sede =>
+                `<div class="sede-item">
+                    <span class="font-semibold text-gray-700">${sede.sede}</span>
+                    <span class="font-bold ${colorClass}">${sede.percent.toFixed(0)}%</span>
+                </div>`
+            ).join('');
+        }
+
+        function populateCompactList(containerId, data, colorClass) {
+            const container = document.getElementById(containerId);
+            if (data.length === 0) {
+                 container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes.</p>`;
+                 return;
+            }
+            let html = '<div class="columns-2 md:columns-3 lg:columns-4 gap-x-6">';
+            data.forEach(sede => {
+                 html += `<div class="compact-list-item flex justify-between items-baseline">
+                    <span class="font-semibold text-gray-700 text-sm">${sede.sede}</span>
+                    <span class="font-bold ${colorClass} text-sm">${sede.percent.toFixed(0)}%</span>
+                 </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // --- LÓGICA DASHBOARD 2 ---
         const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
-
         const getProgressColor = (percent) => {
             if (percent >= 110) return 'bg-purple-600';
             if (percent >= 100) return 'bg-green-500';
@@ -132,32 +325,74 @@
             if (percent >= 70) return 'bg-orange-400';
             return 'bg-slate-400';
         };
-        
         const getMotivationalMessage = (percent) => {
-            if (percent >= 110) return "¡Leyenda! Desbloqueaste todos los bonos. Eres una máquina.";
-            if (percent >= 100) return `¡Meta cumplida! Ahora a seguir sumando para el bono máximo.`;
-            if (percent >= 70) return "¡Vamo a calmarno! Falta poquito, no te caigas ahora.";
-            if (percent >= 30) return "Estás como el 'Zafrada', te falta 'un palito'. ¡A vender!";
-            return "Vamos que se puede... pero póngale weno po'.";
+             if (percent >= 110) return "¡Leyenda! Desbloqueaste todos los bonos. Eres una máquina.";
+             if (percent >= 100) return `¡Meta cumplida! Ahora a seguir sumando para el bono máximo.`;
+             if (percent >= 70) return "¡Vamo a calmarno! Falta poquito, no te caigas ahora.";
+             if (percent >= 30) return "Estás como el 'Zafrada', te falta 'un palito'. ¡A vender!";
+             return "Vamos que se puede... pero póngale weno po'.";
         };
-        
         const bonusTiersConfig = [
-            { min: 70, max: 79.999, rate: 0.01, label: '70% - 79%' },
-            { min: 80, max: 89.999, rate: 0.015, label: '80% - 89%' },
-            { min: 90, max: 99.999, rate: 0.02, label: '90% - 99%' },
-            { min: 100, max: 109.999, rate: 0.03, label: '100% - 109%' },
-            { min: 110, max: Infinity, rate: 0.035, label: '110% o más' }
+             { min: 70, max: 79.999, rate: 0.01, label: '70% - 79%' },
+             { min: 80, max: 89.999, rate: 0.015, label: '80% - 89%' },
+             { min: 90, max: 99.999, rate: 0.02, label: '90% - 99%' },
+             { min: 100, max: 109.999, rate: 0.03, label: '100% - 109%' },
+             { min: 110, max: Infinity, rate: 0.035, label: '110% o más' }
         ];
 
+        function initDashboard() {
+            const listaSedesEl = document.getElementById('lista-sedes');
+            const resumenGeneralEl = document.getElementById('resumen-general');
+            if (!listaSedesEl || !resumenGeneralEl) return;
+
+            listaSedesEl.innerHTML = '';
+            resumenGeneralEl.innerHTML = '';
+
+            const totalMeta = performanceData.reduce((sum, sede) => sum + sede.meta, 0);
+            const totalAvance = performanceData.reduce((sum, sede) => sum + sede.avance, 0);
+            const totalPercent = totalMeta > 0 ? (totalAvance / totalMeta) * 100 : 0;
+
+            resumenGeneralEl.innerHTML = `
+                <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Meta Total</h3><p class="text-3xl font-bold text-gray-800">${formatCurrency(totalMeta)}</p></div>
+                <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Avance Total</h3><p class="text-3xl font-bold text-gray-800">${formatCurrency(totalAvance)}</p></div>
+                <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Cumplimiento General</h3><p class="text-3xl font-bold ${getProgressColor(totalPercent).replace('bg-','text-')}">${totalPercent.toFixed(1)}%</p></div>
+            `;
+
+            const sortedSedes = [...performanceData].sort((a, b) => b.percent - a.percent);
+
+            sortedSedes.forEach(sede => {
+                const card = document.createElement('div');
+                card.className = 'card-sede bg-white p-5 rounded-xl shadow cursor-pointer';
+                card.onclick = () => openModal(sede.id);
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-lg text-gray-800">${sede.sede}</h3>
+                        <span class="text-sm font-semibold px-2 py-1 rounded-full ${sede.percent >= 100 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${sede.percent.toFixed(0)}%</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">Meta: ${formatCurrency(sede.meta)}</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="h-2.5 rounded-full ${getProgressColor(sede.percent)}" style="width: ${Math.min(sede.percent, 100)}%"></div>
+                    </div>`;
+                listaSedesEl.appendChild(card);
+            });
+        }
+        
+        // --- LÓGICA DEL MODAL ---
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContentEl = document.getElementById('modal-content');
+        const icons = {
+            achieved: `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
+            active: `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            nextGoal: `<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+            locked: `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>`
+        };
         const calculateBonusTiers = (avance, meta) => {
             const currentPercent = meta > 0 ? (avance / meta) * 100 : 0;
             let nextGoalMarked = false;
-
             return bonusTiersConfig.map(tier => {
                 const requiredSales = meta * (tier.min / 100);
                 const potentialBonus = requiredSales * tier.rate;
                 let status = 'locked';
-
                 if (currentPercent >= tier.min && currentPercent <= tier.max) {
                     status = 'active';
                 } else if (currentPercent > tier.max) {
@@ -166,150 +401,52 @@
                     status = 'nextGoal';
                     nextGoalMarked = true;
                 }
-                
                 return { ...tier, requiredSales, potentialBonus, status };
             });
         };
-
-        // --- LÓGICA DE RENDERIZADO ---
-        const listaSedesEl = document.getElementById('lista-sedes');
-        const resumenGeneralEl = document.getElementById('resumen-general');
-
-        function renderDashboard() {
-            if (!listaSedesEl || !resumenGeneralEl) return;
-            listaSedesEl.innerHTML = '';
-            resumenGeneralEl.innerHTML = '';
-            
-            const totalMeta = sedes.reduce((sum, sede) => sum + sede.meta, 0);
-            const totalAvance = sedes.reduce((sum, sede) => sum + sede.avance, 0);
-            const totalPercent = totalMeta > 0 ? (totalAvance / totalMeta) * 100 : 0;
-
-            resumenGeneralEl.innerHTML = `<div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Meta Total</h3><p class="text-3xl font-bold text-gray-800">${formatCurrency(totalMeta)}</p></div><div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Avance Total</h3><p class="text-3xl font-bold text-gray-800">${formatCurrency(totalAvance)}</p></div><div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Cumplimiento General</h3><p class="text-3xl font-bold ${getProgressColor(totalPercent).replace('bg-','text-')}">${totalPercent.toFixed(1)}%</p></div>`;
-
-            sedes.sort((a, b) => {
-                const percentA = a.meta > 0 ? (a.avance / a.meta) * 100 : 0;
-                const percentB = b.meta > 0 ? (b.avance / b.meta) * 100 : 0;
-                return percentB - percentA;
-            });
-
-            sedes.forEach(sede => {
-                const percent = sede.meta > 0 ? (sede.avance / sede.meta) * 100 : 0;
-                const card = document.createElement('div');
-                card.className = 'card-sede bg-white p-5 rounded-xl shadow cursor-pointer';
-                card.onclick = () => openModal(sede.id);
-                card.innerHTML = `<div class="flex justify-between items-center mb-2"><h3 class="font-bold text-lg text-gray-800">${sede.nombre}</h3><span class="text-sm font-semibold px-2 py-1 rounded-full ${percent >= 100 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">${percent.toFixed(0)}%</span></div><p class="text-sm text-gray-500 mb-3">Meta: ${formatCurrency(sede.meta)}</p><div class="w-full bg-gray-200 rounded-full h-2.5"><div class="h-2.5 rounded-full ${getProgressColor(percent)}" style="width: ${Math.min(percent, 100)}%"></div></div>`;
-                listaSedesEl.appendChild(card);
-            });
-        }
-
-        // --- LÓGICA DEL MODAL ---
-        const modalBackdrop = document.getElementById('modal-backdrop');
-        const modalContentEl = document.getElementById('modal-content');
-
-        const icons = {
-            achieved: `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`,
-            active: `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-            nextGoal: `<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
-            locked: `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>`
-        };
-        
         window.openModal = (sedeId) => {
-            const sede = sedes.find(s => s.id === sedeId);
+            const sede = performanceData.find(s => s.id === sedeId);
             if (!sede) return;
 
-            document.getElementById('modal-sede-nombre').textContent = sede.nombre;
-            const percent = sede.meta > 0 ? (sede.avance / sede.meta) * 100 : 0;
+            document.getElementById('modal-sede-nombre').textContent = sede.sede; // 'nombre' changed to 'sede'
             const bonusTiers = calculateBonusTiers(sede.avance, sede.meta);
-
             const activeTier = bonusTiers.find(t => t.status === 'active');
             const nextTier = bonusTiers.find(t => t.status === 'nextGoal');
 
             let nextGoalHTML = '';
             if (nextTier) {
                 const needed = nextTier.requiredSales - sede.avance;
-                nextGoalHTML = `<div class="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl text-center flex flex-col justify-center h-full">
-                    <p class="text-sm text-blue-600 uppercase">Falta para Siguiente Bono</p>
-                    <p class="text-2xl font-bold text-blue-800">${formatCurrency(needed)}</p>
-                    <p class="text-sm text-blue-500">para el bono del ${nextTier.label}</p>
-                </div>`;
+                nextGoalHTML = `<div class="bg-blue-50 border-2 border-blue-200 p-4 rounded-xl text-center flex flex-col justify-center h-full"><p class="text-sm text-blue-600 uppercase">Falta para Siguiente Bono</p><p class="text-2xl font-bold text-blue-800">${formatCurrency(needed)}</p><p class="text-sm text-blue-500">para el bono del ${nextTier.label}</p></div>`;
             } else {
-                 nextGoalHTML = `<div class="bg-purple-50 border-2 border-purple-200 p-4 rounded-xl text-center flex flex-col justify-center h-full">
-                    <p class="text-sm text-purple-600 uppercase">¡Felicidades!</p>
-                    <p class="text-xl font-bold text-purple-800">Alcanzaste el bono máximo</p>
-                </div>`;
+                 nextGoalHTML = `<div class="bg-purple-50 border-2 border-purple-200 p-4 rounded-xl text-center flex flex-col justify-center h-full"><p class="text-sm text-purple-600 uppercase">¡Felicidades!</p><p class="text-xl font-bold text-purple-800">Alcanzaste el bono máximo</p></div>`;
             }
+            const metricsHTML = `<div class="bg-slate-100 p-6 rounded-xl"><h4 class="text-md font-semibold text-gray-700 mb-4 text-center">Estado Actual</h4><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-white p-4 rounded-xl text-center flex flex-col justify-center h-full"><p class="text-sm text-gray-500 uppercase">Avance Actual</p><p class="text-2xl font-bold text-gray-800">${formatCurrency(sede.avance)}</p></div><div class="bg-white p-4 rounded-xl text-center flex flex-col justify-center h-full"><p class="text-sm text-green-600 uppercase">Bono Actual</p><p class="text-2xl font-bold text-green-700">${activeTier ? activeTier.label : 'Ninguno'}</p></div>${nextGoalHTML}</div></div>`;
+            const bonusTableHTML = `<div><h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Escalera de Bonos</h4><div class="space-y-2 text-sm">${bonusTiers.map(tier => {const statusClasses={achieved:'bg-slate-50 text-gray-400',active:'bg-green-50 text-green-800 border-2 border-green-300',nextGoal:'bg-blue-50 text-blue-800 border-2 border-blue-300 tier-next-goal',locked:'bg-slate-50 text-gray-500'}; const bonusPercentText=(tier.rate*100).toLocaleString('es-CL',{maximumFractionDigits:1}); return `<div class="flex items-center p-3 rounded-lg transition-all duration-300 ${statusClasses[tier.status]}"><div class="w-8 flex-shrink-0">${icons[tier.status]}</div><div class="flex-1 ml-3"><span class="font-bold ${tier.status==='achieved'?'line-through':''}">${"Bono "+tier.label}</span><span class="text-xs block ${tier.status==='achieved'?'line-through':''}">Venta mín: ${formatCurrency(tier.requiredSales)}</span></div><div class="text-right ml-2"><span class="font-bold text-lg ${tier.status==='achieved'?'line-through':''}">${formatCurrency(tier.potentialBonus)}</span><span class="text-xs block ${tier.status==='achieved'?'line-through':''}">Bono ${bonusPercentText}%</span></div></div>`}).join('')}</div></div>`;
+            const message = getMotivationalMessage(sede.percent);
+            const motivationHTML = `<div class="mt-6 text-center bg-slate-100 p-6 rounded-xl flex items-center justify-center min-h-[8rem]"><p class="text-xl font-medium text-gray-600 italic">"${message}"</p></div>`;
 
-            const metricsHTML = `<div class="bg-slate-100 p-6 rounded-xl">
-                 <h4 class="text-md font-semibold text-gray-700 mb-4 text-center">Estado Actual</h4>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-4 rounded-xl text-center flex flex-col justify-center h-full">
-                        <p class="text-sm text-gray-500 uppercase">Avance Actual</p>
-                        <p class="text-2xl font-bold text-gray-800">${formatCurrency(sede.avance)}</p>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl text-center flex flex-col justify-center h-full">
-                         <p class="text-sm text-green-600 uppercase">Bono Actual</p>
-                         <p class="text-2xl font-bold text-green-700">${activeTier ? activeTier.label : 'Ninguno'}</p>
-                    </div>
-                    ${nextGoalHTML}
-                </div>
-            </div>`;
-
-            const bonusTableHTML = `<div>
-                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Escalera de Bonos</h4>
-                <div class="space-y-2 text-sm">
-                    ${bonusTiers.map(tier => {
-                        const statusClasses = {
-                            achieved: 'bg-slate-50 text-gray-400',
-                            active: 'bg-green-50 text-green-800 border-2 border-green-300',
-                            nextGoal: 'bg-blue-50 text-blue-800 border-2 border-blue-300 tier-next-goal',
-                            locked: 'bg-slate-50 text-gray-500'
-                        };
-                        const bonusPercentText = (tier.rate * 100).toLocaleString('es-CL', { maximumFractionDigits: 1 });
-
-                        return `<div class="flex items-center p-3 rounded-lg transition-all duration-300 ${statusClasses[tier.status]}">
-                            <div class="w-8 flex-shrink-0">${icons[tier.status]}</div>
-                            <div class="flex-1 ml-3">
-                                <span class="font-bold ${tier.status === 'achieved' ? 'line-through' : ''}">Bono ${tier.label}</span>
-                                <span class="text-xs block ${tier.status === 'achieved' ? 'line-through' : ''}">Venta mín: ${formatCurrency(tier.requiredSales)}</span>
-                            </div>
-                            <div class="text-right ml-2">
-                                <span class="font-bold text-lg ${tier.status === 'achieved' ? 'line-through' : ''}">${formatCurrency(tier.potentialBonus)}</span>
-                                 <span class="text-xs block ${tier.status === 'achieved' ? 'line-through' : ''}">Bono ${bonusPercentText}%</span>
-                            </div>
-                        </div>`
-                    }).join('')}
-                </div>
-            </div>`;
-            
-            const message = getMotivationalMessage(percent);
-            const motivationHTML = `<div class="mt-6 text-center bg-slate-100 p-6 rounded-xl flex items-center justify-center min-h-[8rem]">
-                <p class="text-xl font-medium text-gray-600 italic">"${message}"</p>
-            </div>`;
-
-            modalContentEl.innerHTML = `
-                ${metricsHTML}
-                ${bonusTableHTML}
-                ${motivationHTML}
-            `;
-
+            modalContentEl.innerHTML = `${metricsHTML}${bonusTableHTML}${motivationHTML}`;
             modalBackdrop.classList.remove('hidden');
             setTimeout(() => {
                 modalBackdrop.classList.remove('opacity-0');
                 document.getElementById('modal-panel').classList.remove('scale-95', 'opacity-0');
             }, 10);
         };
-
         window.closeModal = () => {
-            const backdrop = document.getElementById('modal-backdrop');
-            const panel = document.getElementById('modal-panel');
-            backdrop.classList.add('opacity-0');
-            panel.classList.add('scale-95', 'opacity-0');
+            modalBackdrop.classList.add('opacity-0');
+            document.getElementById('modal-panel').classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
-                backdrop.classList.add('hidden');
+                modalBackdrop.classList.add('hidden');
             }, 300);
         };
         
-        document.addEventListener('DOMContentLoaded', renderDashboard);
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initInforme();
+            initDashboard();
+            // Mostrar la primera pestaña por defecto
+            switchTab('informe');
+        });
     </script>
 </body>
 </html>

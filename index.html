@@ -317,14 +317,16 @@
 
         // --- LÓGICA DASHBOARD 2 ---
         const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
+        
+        // --- ¡CAMBIO REALIZADO AQUÍ! ---
         const getProgressColor = (percent) => {
-            if (percent >= 110) return 'bg-purple-600';
-            if (percent >= 100) return 'bg-green-500';
-            if (percent >= 90) return 'bg-lime-500';
-            if (percent >= 80) return 'bg-yellow-400';
-            if (percent >= 70) return 'bg-orange-400';
-            return 'bg-slate-400';
+            if (percent >= 110) return 'bg-emerald-500'; // Excepcional: Verde Esmeralda
+            if (percent >= 100) return 'bg-green-500';   // Meta Cumplida: Verde Estándar
+            if (percent >= 75) return 'bg-yellow-400';  // En Camino: Amarillo
+            if (percent >= 50) return 'bg-orange-500';  // Alerta: Naranja
+            return 'bg-red-500';                       // Crítico: Rojo
         };
+
         const getMotivationalMessage = (percent) => {
              if (percent >= 110) return "¡Leyenda! Desbloqueaste todos los bonos. Eres una máquina.";
              if (percent >= 100) return `¡Meta cumplida! Ahora a seguir sumando para el bono máximo.`;

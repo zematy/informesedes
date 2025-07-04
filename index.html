@@ -31,6 +31,16 @@
         .tab-content.active {
             display: block;
         }
+        
+        /* Estilos Filtro División */
+        .filter-button {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .filter-button.active {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
 
         /* Estilos Informe 1 */
         .main-card {
@@ -112,27 +122,36 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
-        <!-- Navegación de Pestañas -->
-        <div class="mb-8 bg-gray-200 p-2 rounded-xl flex space-x-2 max-w-md mx-auto no-print">
-            <button onclick="switchTab('informe')" id="btn-informe" class="tab-button w-full text-center font-semibold text-gray-600 p-3 rounded-lg">Informe de Rendimiento</button>
-            <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-button w-full text-center font-semibold text-gray-600 p-3 rounded-lg">Dashboard de Seguimiento</button>
+        <!-- Controles Superiores: Pestañas y Filtro -->
+        <div class="flex justify-center items-center mb-4 relative">
+             <!-- Navegación de Pestañas -->
+            <div class="bg-gray-200 p-2 rounded-xl flex space-x-2 max-w-md mx-auto no-print">
+                <button onclick="switchTab('informe')" id="btn-informe" class="tab-button w-full text-center font-semibold text-gray-600 p-3 rounded-lg">Informe de Rendimiento</button>
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-button w-full text-center font-semibold text-gray-600 p-3 rounded-lg">Dashboard de Seguimiento</button>
+            </div>
+             <!-- Filtro de División -->
+            <div class="absolute right-0 top-0 no-print">
+                <div class="flex space-x-1 bg-gray-200 p-1 rounded-lg text-sm">
+                    <button onclick="applyFilter('Todos')" id="filter-btn-Todos" class="filter-button px-4 py-1 rounded-md">Todos</button>
+                    <button onclick="applyFilter('Dani')" id="filter-btn-Dani" class="filter-button px-4 py-1 rounded-md">Dani</button>
+                    <button onclick="applyFilter('Feña')" id="filter-btn-Feña" class="filter-button px-4 py-1 rounded-md">Feña</button>
+                </div>
+            </div>
         </div>
+
 
         <!-- Contenido Pestaña 1: Informe de Rendimiento -->
         <div id="informe" class="tab-content">
             <div class="main-card p-6 md:p-8">
                 <header class="mb-6 text-center border-b pb-6">
                     <h1 class="text-3xl lg:text-4xl font-black text-gray-800">Informe de Rendimiento de Sedes</h1>
-                    <p class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 24 de Junio de 2025 (a poco más de 6 meses del cierre de año)</p>
+                    <p id="informe-subtitle" class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 3 de Julio de 2025 (a menos de 6 meses del cierre de año)</p>
                 </header>
                 <section class="mb-8 border-b pb-8">
                     <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Resumen General</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="kpi-card-print bg-blue-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-blue-800">META TOTAL</h3><p class="text-2xl font-bold text-blue-600">$1.860M</p></div>
-                            <div class="kpi-card-print bg-green-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-green-800">AVANCE TOTAL</h3><p class="text-2xl font-bold text-green-600">$1.410,3M</p></div>
-                            <div class="kpi-card-print bg-red-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-red-800">BRECHA</h3><p class="text-2xl font-bold text-red-600">$449,7M</p></div>
-                            <div class="kpi-card-print bg-yellow-100 p-4 rounded-lg"><h3 class="text-sm font-semibold text-yellow-800">AVANCE GRAL.</h3><p class="text-3xl font-black text-yellow-700">76%</p></div>
+                        <div id="informe-kpis" class="grid grid-cols-2 gap-4 text-center">
+                            <!-- KPIs se generarán dinámicamente -->
                         </div>
                         <div><div class="h-[250px] md:h-[300px] w-full flex items-center justify-center"><canvas id="statusDonutChart"></canvas></div></div>
                     </div>
@@ -185,54 +204,56 @@
     <script>
         // --- DATA COMPARTIDA (UNIFICADA) ---
         const performanceData = [
-            { id: 1, sede: "Alameda", meta: 16464000, avance: 19100000 },
-            { id: 2, sede: "Alto Hospicio", meta: 7000000, avance: 0 },
-            { id: 3, sede: "Antofagasta", meta: 7000000, avance: 4950000 },
-            { id: 4, sede: "Arica", meta: 12315000, avance: 12534900 },
-            { id: 5, sede: "Calama", meta: 38036000, avance: 14450000 },
-            { id: 6, sede: "Chillán", meta: 18360800, avance: 6116350 },
-            { id: 7, sede: "Concepción", meta: 24281600, avance: 30798264 },
-            { id: 8, sede: "Copiapó", meta: 20144880, avance: 19606300 },
-            { id: 9, sede: "Coquimbo", meta: 7000000, avance: 0 },
-            { id: 10, sede: "Coronel", meta: 52200000, avance: 48256289 },
-            { id: 11, sede: "Curicó", meta: 14079184, avance: 17555600 },
-            { id: 12, sede: "Gran Avenida", meta: 8577000, avance: 10975000 },
-            { id: 13, sede: "Independencia", meta: 31707200, avance: 37835400 },
-            { id: 14, sede: "Iquique", meta: 8373120, avance: 0 },
-            { id: 15, sede: "La Florida", meta: 25519984, avance: 23427500 },
-            { id: 16, sede: "La Serena", meta: 7000000, avance: 0 },
-            { id: 17, sede: "Las Condes", meta: 10500000, avance: 7813600 },
-            { id: 18, sede: "Linares", meta: 45000000, avance: 26000000 },
-            { id: 19, sede: "Los Andes", meta: 15456807, avance: 6000000 },
-            { id: 20, sede: "Los Ángeles", meta: 7767200, avance: 0 },
-            { id: 21, sede: "Maipú", meta: 38080000, avance: 0 },
-            { id: 22, sede: "Melipilla", meta: 39446400, avance: 35450000 },
-            { id: 23, sede: "Ñuñoa", meta: 10846080, avance: 0 },
-            { id: 24, sede: "Osorno", meta: 11200000, avance: 10000000 },
-            { id: 25, sede: "Ovalle", meta: 20160000, avance: 0 },
-            { id: 26, sede: "Providencia", meta: 7000000, avance: 9407300 },
-            { id: 27, sede: "Puente Alto", meta: 30492000, avance: 11880000 },
-            { id: 28, sede: "Puerto Montt", meta: 29388800, avance: 39850000 },
-            { id: 29, sede: "Punta Arenas", meta: 7000000, avance: 0 },
-            { id: 30, sede: "Quilicura", meta: 36657550, avance: 0 },
-            { id: 31, sede: "Quillota", meta: 7728000, avance: 0 },
-            { id: 32, sede: "Quilpué", meta: 7000000, avance: 0 },
-            { id: 33, sede: "Rancagua", meta: 7000000, avance: 0 },
-            { id: 34, sede: "San Bernardo", meta: 7000000, avance: 9859000 },
-            { id: 35, sede: "San Felipe", meta: 11936575, avance: 0 },
-            { id: 36, sede: "San Fernando", meta: 39854000, avance: 19800000 },
-            { id: 37, sede: "Santa Cruz", meta: 22497000, avance: 0 },
-            { id: 38, sede: "Talagante", meta: 7000000, avance: 0 },
-            { id: 39, sede: "Talca", meta: 66064500, avance: 71668008 },
-            { id: 40, sede: "Temuco", meta: 68257690, avance: 46204000 },
-            { id: 41, sede: "Valdivia", meta: 56006384, avance: 10234000 },
-            { id: 42, sede: "Valparaíso", meta: 28224000, avance: 32500000 },
-            { id: 43, sede: "Villa Alemana", meta: 52932800, avance: 24890000 },
-            { id: 44, sede: "Viña del mar", meta: 13261920, avance: 12750000 }
+            { id: 1, sede: "Alameda", meta: 16464000, avance: 19100000, division: "Dani" },
+            { id: 2, sede: "Alto Hospicio", meta: 7000000, avance: 0, division: "Dani" },
+            { id: 3, sede: "Antofagasta", meta: 7000000, avance: 4950000, division: "Dani" },
+            { id: 4, sede: "Arica", meta: 12315000, avance: 12534900, division: "Dani" },
+            { id: 5, sede: "Calama", meta: 38036000, avance: 14450000, division: "Dani" },
+            { id: 6, sede: "Chillán", meta: 18360800, avance: 6116350, division: "Feña" },
+            { id: 7, sede: "Concepción", meta: 24281600, avance: 30798264, division: "Feña" },
+            { id: 8, sede: "Copiapó", meta: 20144880, avance: 19606300, division: "Feña" },
+            { id: 9, sede: "Coquimbo", meta: 7000000, avance: 0, division: "Feña" },
+            { id: 10, sede: "Coronel", meta: 52200000, avance: 48256289, division: "Feña" },
+            { id: 11, sede: "Curicó", meta: 14079184, avance: 17555600, division: "Dani" },
+            { id: 12, sede: "Gran Avenida", meta: 8577000, avance: 10975000, division: "Feña" },
+            { id: 13, sede: "Independencia", meta: 31707200, avance: 37835400, division: "Dani" },
+            { id: 14, sede: "Iquique", meta: 8373120, avance: 0, division: "Dani" },
+            { id: 15, sede: "La Florida", meta: 25519984, avance: 23427500, division: "Dani" },
+            { id: 16, sede: "La Serena", meta: 7000000, avance: 0, division: "Feña" },
+            { id: 17, sede: "Las Condes", meta: 10500000, avance: 7813600, division: "Dani" },
+            { id: 18, sede: "Linares", meta: 45000000, avance: 26000000, division: "Dani" },
+            { id: 19, sede: "Los Andes", meta: 15456807, avance: 6000000, division: "Dani" },
+            { id: 20, sede: "Los Ángeles", meta: 7767200, avance: 0, division: "Feña" },
+            { id: 21, sede: "Maipú", meta: 38080000, avance: 0, division: "Feña" },
+            { id: 22, sede: "Melipilla", meta: 39446400, avance: 35450000, division: "Feña" },
+            { id: 23, sede: "Ñuñoa", meta: 10846080, avance: 0, division: "Dani" },
+            { id: 24, sede: "Osorno", meta: 11200000, avance: 10000000, division: "Feña" },
+            { id: 25, sede: "Ovalle", meta: 20160000, avance: 0, division: "Feña" },
+            { id: 26, sede: "Providencia", meta: 7000000, avance: 9407300, division: "Dani" },
+            { id: 27, sede: "Puente Alto", meta: 30492000, avance: 11880000, division: "Feña" },
+            { id: 28, sede: "Puerto Montt", meta: 29388800, avance: 47350000, division: "Feña" },
+            { id: 29, sede: "Punta Arenas", meta: 7000000, avance: 0, division: "Feña" },
+            { id: 30, sede: "Quilicura", meta: 36657550, avance: 0, division: "Feña" },
+            { id: 31, sede: "Quillota", meta: 7728000, avance: 0, division: "Dani" },
+            { id: 32, sede: "Quilpué", meta: 7000000, avance: 0, division: "Dani" },
+            { id: 33, sede: "Rancagua", meta: 7000000, avance: 0, division: "Feña" },
+            { id: 34, sede: "San Bernardo", meta: 7000000, avance: 9859000, division: "Feña" },
+            { id: 35, sede: "San Felipe", meta: 11936575, avance: 0, division: "Dani" },
+            { id: 36, sede: "San Fernando", meta: 39854000, avance: 19800000, division: "Feña" },
+            { id: 37, sede: "Santa Cruz", meta: 22497000, avance: 0, division: "Feña" },
+            { id: 38, sede: "Talagante", meta: 7000000, avance: 0, division: "Feña" },
+            { id: 39, sede: "Talca", meta: 66064500, avance: 71668008, division: "Dani" },
+            { id: 40, sede: "Temuco", meta: 68257690, avance: 46204000, division: "Dani" },
+            { id: 41, sede: "Valdivia", meta: 56006384, avance: 10234000, division: "Feña" },
+            { id: 42, sede: "Valparaíso", meta: 28224000, avance: 32500000, division: "Dani" },
+            { id: 43, sede: "Villa Alemana", meta: 52932800, avance: 24890000, division: "Dani" },
+            { id: 44, sede: "Viña del mar", meta: 13261920, avance: 12750000, division: "Dani" }
         ].map(d => ({...d, percent: d.meta > 0 ? (d.avance / d.meta) * 100 : 0 }));
 
+        let currentFilter = 'Todos';
+        let statusChart = null; // Variable to hold the chart instance
 
-        // --- LÓGICA DE PESTAÑAS ---
+        // --- LÓGICA DE CONTROLES ---
         function switchTab(tabName) {
             document.getElementById('informe').classList.remove('active');
             document.getElementById('dashboard').classList.remove('active');
@@ -243,51 +264,111 @@
             document.getElementById('btn-' + tabName).classList.add('active');
         }
 
+        function applyFilter(division) {
+            currentFilter = division;
+            
+            document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`filter-btn-${division}`).classList.add('active');
+
+            renderAll();
+        }
+
+        function renderAll() {
+            let dataToRender = performanceData;
+            if (currentFilter !== 'Todos') {
+                dataToRender = performanceData.filter(d => d.division === currentFilter);
+            }
+            initInforme(dataToRender);
+            initDashboard(dataToRender);
+        }
 
         // --- LÓGICA INFORME 1 ---
-        function initInforme() {
-            // Filtrar y ordenar datos
-            const destacadasSedes = performanceData.filter(d => d.percent >= 100).sort((a,b) => b.percent - a.percent);
-            const enCaminoSedes = performanceData.filter(d => d.percent >= 75 && d.percent < 100).sort((a,b) => b.percent - a.percent);
-            const alertaSedes = performanceData.filter(d => d.percent >= 50 && d.percent < 75).sort((a,b) => b.percent - a.percent);
-            const criticoSedes = performanceData.filter(d => d.percent < 50).sort((a,b) => b.percent - a.percent);
+        function initInforme(data) {
+            updateInformeKPIs(data);
 
-            // Poblar listas
+            const destacadasSedes = data.filter(d => d.percent >= 100).sort((a,b) => b.percent - a.percent);
+            const enCaminoSedes = data.filter(d => d.percent >= 75 && d.percent < 100).sort((a,b) => b.percent - a.percent);
+            const alertaSedes = data.filter(d => d.percent >= 50 && d.percent < 75).sort((a,b) => b.percent - a.percent);
+            const criticoSedes = data.filter(d => d.percent < 50).sort((a,b) => b.percent - a.percent);
+
             populateVerticalList('destacadas-list', destacadasSedes, 'text-green-700', '#bbf7d0');
             populateVerticalList('encamino-list', enCaminoSedes, 'text-yellow-700', '#fef08a');
             populateVerticalList('alerta-list', alertaSedes, 'text-orange-700', '#fed7aa');
             populateCompactList('critico-list', criticoSedes, 'text-red-700');
 
-            // Crear Gráfico
             const statusCounts = { 'Destacadas': destacadasSedes.length, 'En Camino': enCaminoSedes.length, 'Alerta': alertaSedes.length, 'Crítico': criticoSedes.length };
             const ctxStatus = document.getElementById('statusDonutChart').getContext('2d');
-            new Chart(ctxStatus, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`),
-                    datasets: [{
-                        label: '# de Sedes',
-                        data: Object.values(statusCounts),
-                        backgroundColor: ['#16a34a', '#ca8a04', '#f97316', '#dc2626'],
-                        borderColor: '#ffffff',
-                        borderWidth: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { padding: 20, font: { size: 12 } } }
+            
+            if (statusChart) {
+                statusChart.data.labels = Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`);
+                statusChart.data.datasets[0].data = Object.values(statusCounts);
+                statusChart.update();
+            } else {
+                statusChart = new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`),
+                        datasets: [{
+                            label: '# de Sedes',
+                            data: Object.values(statusCounts),
+                            backgroundColor: ['#16a34a', '#ca8a04', '#f97316', '#dc2626'],
+                            borderColor: '#ffffff',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { padding: 20, font: { size: 12 } } }
+                        }
                     }
-                }
-            });
+                });
+            }
+        }
+        
+        // --- ¡CAMBIO REALIZADO AQUÍ! ---
+        const formatCurrencyShort = (value) => {
+            // Handles negative values for brecha as well
+            const sign = value < 0 ? '-' : '';
+            const absValue = Math.abs(value);
+
+            if (absValue >= 1e6) { // If value is one million or more
+                const millions = Math.floor(absValue / 1e6);
+                return `${sign}$${millions.toLocaleString('es-CL')} M`;
+            }
+            return `$${value.toLocaleString('es-CL')}`;
+        };
+
+        function updateInformeKPIs(data) {
+            const kpiContainer = document.getElementById('informe-kpis');
+            let totalMeta, totalAvance, totalBrecha, totalPercent;
+
+            if (currentFilter === 'Todos') {
+                totalMeta = 1860000000;
+                totalAvance = 1417820956;
+                totalBrecha = totalMeta - totalAvance;
+                totalPercent = 76; 
+            } else {
+                totalMeta = data.reduce((sum, sede) => sum + sede.meta, 0);
+                totalAvance = data.reduce((sum, sede) => sum + sede.avance, 0);
+                totalBrecha = totalMeta - totalAvance;
+                totalPercent = totalMeta > 0 ? (totalAvance / totalMeta) * 100 : 0;
+            }
+
+            kpiContainer.innerHTML = `
+                <div class="kpi-card-print bg-blue-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-blue-800">META TOTAL</h3><p class="text-2xl font-bold text-blue-600">${formatCurrencyShort(totalMeta)}</p></div>
+                <div class="kpi-card-print bg-green-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-green-800">AVANCE TOTAL</h3><p class="text-2xl font-bold text-green-600">${formatCurrencyShort(totalAvance)}</p></div>
+                <div class="kpi-card-print bg-red-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-red-800">BRECHA</h3><p class="text-2xl font-bold text-red-600">${formatCurrencyShort(totalBrecha)}</p></div>
+                <div class="kpi-card-print bg-yellow-100 p-4 rounded-lg"><h3 class="text-sm font-semibold text-yellow-800">AVANCE GRAL.</h3><p class="text-3xl font-black text-yellow-700">${totalPercent.toFixed(0)}%</p></div>
+            `;
         }
 
         function populateVerticalList(containerId, data, colorClass, borderColor) {
             const container = document.getElementById(containerId);
             container.style.setProperty('--border-color', borderColor);
             if (data.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes.</p>`;
+                container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes en esta categoría.</p>`;
                 return;
             }
             container.innerHTML = data.map(sede =>
@@ -301,7 +382,7 @@
         function populateCompactList(containerId, data, colorClass) {
             const container = document.getElementById(containerId);
             if (data.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes.</p>`;
+                 container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes en esta categoría.</p>`;
                  return;
             }
             let html = '<div class="columns-2 md:columns-3 lg:columns-4 gap-x-6">';
@@ -318,13 +399,12 @@
         // --- LÓGICA DASHBOARD 2 ---
         const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
         
-        // --- ¡CAMBIO REALIZADO AQUÍ! ---
         const getProgressColor = (percent) => {
-            if (percent >= 110) return 'bg-emerald-500'; // Excepcional: Verde Esmeralda
-            if (percent >= 100) return 'bg-green-500';   // Meta Cumplida: Verde Estándar
-            if (percent >= 75) return 'bg-yellow-400';  // En Camino: Amarillo
-            if (percent >= 50) return 'bg-orange-500';  // Alerta: Naranja
-            return 'bg-red-500';                       // Crítico: Rojo
+            if (percent >= 110) return 'bg-emerald-500';
+            if (percent >= 100) return 'bg-green-500';
+            if (percent >= 75) return 'bg-yellow-400';
+            if (percent >= 50) return 'bg-orange-500';
+            return 'bg-red-500';
         };
 
         const getMotivationalMessage = (percent) => {
@@ -342,7 +422,7 @@
              { min: 110, max: Infinity, rate: 0.035, label: '110% o más' }
         ];
 
-        function initDashboard() {
+        function initDashboard(data) {
             const listaSedesEl = document.getElementById('lista-sedes');
             const resumenGeneralEl = document.getElementById('resumen-general');
             if (!listaSedesEl || !resumenGeneralEl) return;
@@ -350,8 +430,8 @@
             listaSedesEl.innerHTML = '';
             resumenGeneralEl.innerHTML = '';
 
-            const totalMeta = performanceData.reduce((sum, sede) => sum + sede.meta, 0);
-            const totalAvance = performanceData.reduce((sum, sede) => sum + sede.avance, 0);
+            const totalMeta = data.reduce((sum, sede) => sum + sede.meta, 0);
+            const totalAvance = data.reduce((sum, sede) => sum + sede.avance, 0);
             const totalPercent = totalMeta > 0 ? (totalAvance / totalMeta) * 100 : 0;
 
             resumenGeneralEl.innerHTML = `
@@ -360,7 +440,12 @@
                 <div class="bg-white p-6 rounded-xl shadow"><h3 class="text-gray-500 font-semibold">Cumplimiento General</h3><p class="text-3xl font-bold ${getProgressColor(totalPercent).replace('bg-','text-')}">${totalPercent.toFixed(1)}%</p></div>
             `;
 
-            const sortedSedes = [...performanceData].sort((a, b) => b.percent - a.percent);
+            const sortedSedes = [...data].sort((a, b) => b.percent - a.percent);
+
+            if (sortedSedes.length === 0) {
+                listaSedesEl.innerHTML = `<p class="text-center text-gray-500 italic col-span-full">No hay sedes para mostrar con el filtro actual.</p>`;
+                return;
+            }
 
             sortedSedes.forEach(sede => {
                 const card = document.createElement('div');
@@ -410,7 +495,7 @@
             const sede = performanceData.find(s => s.id === sedeId);
             if (!sede) return;
 
-            document.getElementById('modal-sede-nombre').textContent = sede.sede; // 'nombre' changed to 'sede'
+            document.getElementById('modal-sede-nombre').textContent = sede.sede;
             const bonusTiers = calculateBonusTiers(sede.avance, sede.meta);
             const activeTier = bonusTiers.find(t => t.status === 'active');
             const nextTier = bonusTiers.find(t => t.status === 'nextGoal');
@@ -444,10 +529,9 @@
         
         // --- INICIALIZACIÓN ---
         document.addEventListener('DOMContentLoaded', () => {
-            initInforme();
-            initDashboard();
-            // Mostrar la primera pestaña por defecto
+            // Iniciar con la pestaña y el filtro por defecto
             switchTab('informe');
+            applyFilter('Todos');
         });
     </script>
 </body>

@@ -42,7 +42,7 @@
             font-weight: 600;
         }
 
-        /* Estilos Informe 1 */
+        /* Estilos Informe 1 (Light) */
         .main-card {
             background-color: white;
             border-radius: 1.5rem;
@@ -68,6 +68,58 @@
         .compact-list-item {
             padding-bottom: 0.5rem;
             break-inside: avoid;
+        }
+
+        /* --- ¡NUEVOS ESTILOS! TEMA OSCURO PARA INFORME --- */
+        .report-dark .main-card {
+            background-color: #1f2937; /* gray-800 */
+            color: #d1d5db; /* gray-300 */
+            border-color: #4b5563; /* gray-600 */
+        }
+        .report-dark h1, .report-dark h2 {
+            color: #f9fafb; /* gray-50 */
+        }
+        .report-dark .text-gray-500 {
+            color: #9ca3af; /* gray-400 */
+        }
+        .report-dark .border-b {
+            border-color: #4b5563; /* gray-600 */
+        }
+        .report-dark .kpi-card-print {
+            background-color: #374151 !important; /* gray-700 */
+            border: 1px solid #4b5563; /* gray-600 */
+        }
+        .report-dark .text-blue-800 { color: #93c5fd; }
+        .report-dark .text-blue-600 { color: #60a5fa; }
+        .report-dark .text-green-800 { color: #86efac; }
+        .report-dark .text-green-600 { color: #4ade80; }
+        .report-dark .text-red-800 { color: #fca5a5; }
+        .report-dark .text-red-600 { color: #f87171; }
+        .report-dark .text-yellow-800 { color: #fde047; }
+        .report-dark .text-yellow-700 { color: #facc15; }
+        .report-dark .category-card {
+            background-color: #374151 !important; /* gray-700 */
+        }
+        .report-dark #destacadas-card { border-color: #22c55e; }
+        .report-dark #destacadas-card h3 { color: #4ade80; }
+        .report-dark #destacadas-list .text-green-700 { color: #86efac; }
+        .report-dark #encamino-card { border-color: #eab308; }
+        .report-dark #encamino-card h3 { color: #facc15; }
+        .report-dark #encamino-list .text-yellow-700 { color: #fde047; }
+        .report-dark #alerta-card { border-color: #f97316; }
+        .report-dark #alerta-card h3 { color: #fb923c; }
+        .report-dark #alerta-list .text-orange-700 { color: #fdba74; }
+        .report-dark #critico-card { border-color: #ef4444; }
+        .report-dark #critico-card h3 { color: #f87171; }
+        .report-dark #critico-list .text-red-700 { color: #fca5a5; }
+        .report-dark .sede-item {
+            border-color: #4b5563; /* gray-600 */
+        }
+        .report-dark .font-semibold.text-gray-700 {
+            color: #d1d5db; /* gray-300 */
+        }
+        .report-dark .italic.text-gray-500 {
+            color: #9ca3af; /* gray-400 */
         }
 
         /* Estilos Dashboard 2 */
@@ -140,15 +192,15 @@
         </div>
 
 
-        <!-- Contenido Pestaña 1: Informe de Rendimiento -->
-        <div id="informe" class="tab-content">
+        <!-- Contenido Pestaña 1: Informe de Rendimiento (con tema oscuro) -->
+        <div id="informe" class="tab-content report-dark">
             <div class="main-card p-6 md:p-8">
                 <header class="mb-6 text-center border-b pb-6">
-                    <h1 class="text-3xl lg:text-4xl font-black text-gray-800">Informe de Rendimiento de Sedes</h1>
-                    <p id="informe-subtitle" class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 3 de Julio de 2025 (a menos de 6 meses del cierre de año)</p>
+                    <h1 class="text-3xl lg:text-4xl font-black">Informe de Rendimiento de Sedes</h1>
+                    <p id="informe-subtitle" class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 7 de Julio de 2025 (a menos de 6 meses del cierre de año)</p>
                 </header>
                 <section class="mb-8 border-b pb-8">
-                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Resumen General</h2>
+                    <h2 class="text-2xl font-bold text-center mb-6">Resumen General</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                         <div id="informe-kpis" class="grid grid-cols-2 gap-4 text-center">
                             <!-- KPIs se generarán dinámicamente -->
@@ -157,14 +209,14 @@
                     </div>
                 </section>
                 <section>
-                     <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Clasificación Detallada por Sede</h2>
+                     <h2 class="text-2xl font-bold text-center mb-6">Clasificación Detallada por Sede</h2>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div id="destacadas-card" class="category-card bg-green-50 border border-green-200"><h3 class="text-xl font-bold text-center mb-4 text-green-800">🏆 Destacadas (>100%)</h3><div id="destacadas-list"></div></div>
-                        <div id="encamino-card" class="category-card bg-yellow-50 border border-yellow-300"><h3 class="text-xl font-bold text-center mb-4 text-yellow-800">👍 En Camino (75-99%)</h3><div id="encamino-list"></div></div>
-                        <div id="alerta-card" class="category-card bg-orange-50 border border-orange-300"><h3 class="text-xl font-bold text-center mb-4 text-orange-800">⚠️ Alerta (50-74%)</h3><div id="alerta-list"></div></div>
+                        <div id="destacadas-card" class="category-card bg-green-50 border"><h3 class="text-xl font-bold text-center mb-4">🏆 Destacadas (>100%)</h3><div id="destacadas-list"></div></div>
+                        <div id="encamino-card" class="category-card bg-yellow-50 border"><h3 class="text-xl font-bold text-center mb-4">👍 En Camino (75-99%)</h3><div id="encamino-list"></div></div>
+                        <div id="alerta-card" class="category-card bg-orange-50 border"><h3 class="text-xl font-bold text-center mb-4">⚠️ Alerta (50-74%)</h3><div id="alerta-list"></div></div>
                     </div>
-                    <div id="critico-card" class="category-card bg-red-50 border border-red-200 mt-6">
-                         <h3 class="text-xl font-bold text-center mb-4 text-red-800">🚨 Crítico (&lt;50%)</h3>
+                    <div id="critico-card" class="category-card bg-red-50 border mt-6">
+                         <h3 class="text-xl font-bold text-center mb-4">🚨 Crítico (&lt;50%)</h3>
                          <div id="critico-list"></div>
                     </div>
                 </section>
@@ -244,7 +296,7 @@
             { id: 38, sede: "Talagante", meta: 7000000, avance: 0, division: "Feña" },
             { id: 39, sede: "Talca", meta: 66064500, avance: 71668008, division: "Dani" },
             { id: 40, sede: "Temuco", meta: 68257690, avance: 46204000, division: "Dani" },
-            { id: 41, sede: "Valdivia", meta: 56006384, avance: 10234000, division: "Feña" },
+            { id: 41, sede: "Valdivia", meta: 33067104, avance: 10234000, division: "Feña" },
             { id: 42, sede: "Valparaíso", meta: 28224000, avance: 32500000, division: "Dani" },
             { id: 43, sede: "Villa Alemana", meta: 52932800, avance: 24890000, division: "Dani" },
             { id: 44, sede: "Viña del mar", meta: 13261920, avance: 12750000, division: "Dani" }
@@ -300,40 +352,43 @@
             const ctxStatus = document.getElementById('statusDonutChart').getContext('2d');
             
             if (statusChart) {
-                statusChart.data.labels = Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`);
-                statusChart.data.datasets[0].data = Object.values(statusCounts);
-                statusChart.update();
-            } else {
-                statusChart = new Chart(ctxStatus, {
-                    type: 'doughnut',
-                    data: {
-                        labels: Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`),
-                        datasets: [{
-                            label: '# de Sedes',
-                            data: Object.values(statusCounts),
-                            backgroundColor: ['#16a34a', '#ca8a04', '#f97316', '#dc2626'],
-                            borderColor: '#ffffff',
-                            borderWidth: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'right', labels: { padding: 20, font: { size: 12 } } }
+                statusChart.destroy();
+            }
+            
+            statusChart = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts).map(k => `${k} (${statusCounts[k]})`),
+                    datasets: [{
+                        label: '# de Sedes',
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#22c55e', '#eab308', '#f97316', '#ef4444'],
+                        borderColor: '#1f2937', // Dark theme background
+                        borderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 },
+                                color: '#d1d5db' // Dark theme text
+                            }
                         }
                     }
-                });
-            }
+                }
+            });
         }
         
-        // --- ¡CAMBIO REALIZADO AQUÍ! ---
         const formatCurrencyShort = (value) => {
-            // Handles negative values for brecha as well
             const sign = value < 0 ? '-' : '';
             const absValue = Math.abs(value);
 
-            if (absValue >= 1e6) { // If value is one million or more
+            if (absValue >= 1e6) { 
                 const millions = Math.floor(absValue / 1e6);
                 return `${sign}$${millions.toLocaleString('es-CL')} M`;
             }
@@ -346,9 +401,9 @@
 
             if (currentFilter === 'Todos') {
                 totalMeta = 1860000000;
-                totalAvance = 1417820956;
+                totalAvance = 1420906160;
                 totalBrecha = totalMeta - totalAvance;
-                totalPercent = 76; 
+                totalPercent = (totalAvance / totalMeta) * 100;
             } else {
                 totalMeta = data.reduce((sum, sede) => sum + sede.meta, 0);
                 totalAvance = data.reduce((sum, sede) => sum + sede.avance, 0);
@@ -356,11 +411,12 @@
                 totalPercent = totalMeta > 0 ? (totalAvance / totalMeta) * 100 : 0;
             }
 
+            // Static HTML for KPI cards, their colors are handled by the dark theme CSS
             kpiContainer.innerHTML = `
                 <div class="kpi-card-print bg-blue-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-blue-800">META TOTAL</h3><p class="text-2xl font-bold text-blue-600">${formatCurrencyShort(totalMeta)}</p></div>
                 <div class="kpi-card-print bg-green-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-green-800">AVANCE TOTAL</h3><p class="text-2xl font-bold text-green-600">${formatCurrencyShort(totalAvance)}</p></div>
                 <div class="kpi-card-print bg-red-50 p-4 rounded-lg"><h3 class="text-sm font-semibold text-red-800">BRECHA</h3><p class="text-2xl font-bold text-red-600">${formatCurrencyShort(totalBrecha)}</p></div>
-                <div class="kpi-card-print bg-yellow-100 p-4 rounded-lg"><h3 class="text-sm font-semibold text-yellow-800">AVANCE GRAL.</h3><p class="text-3xl font-black text-yellow-700">${totalPercent.toFixed(0)}%</p></div>
+                <div class="kpi-card-print bg-yellow-100 p-4 rounded-lg"><h3 class="text-sm font-semibold text-yellow-700">AVANCE GRAL.</h3><p class="text-3xl font-black text-yellow-700">${totalPercent.toFixed(0)}%</p></div>
             `;
         }
 
@@ -368,7 +424,7 @@
             const container = document.getElementById(containerId);
             container.style.setProperty('--border-color', borderColor);
             if (data.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes en esta categoría.</p>`;
+                container.innerHTML = `<p class="text-center italic text-gray-500 mt-4">Sin sedes en esta categoría.</p>`;
                 return;
             }
             container.innerHTML = data.map(sede =>
@@ -382,7 +438,7 @@
         function populateCompactList(containerId, data, colorClass) {
             const container = document.getElementById(containerId);
             if (data.length === 0) {
-                 container.innerHTML = `<p class="text-center text-gray-500 italic mt-4">Sin sedes en esta categoría.</p>`;
+                 container.innerHTML = `<p class="text-center italic text-gray-500 mt-4">Sin sedes en esta categoría.</p>`;
                  return;
             }
             let html = '<div class="columns-2 md:columns-3 lg:columns-4 gap-x-6">';

@@ -197,7 +197,7 @@
             <div class="main-card p-6 md:p-8">
                 <header class="mb-6 text-center border-b pb-6">
                     <h1 class="text-3xl lg:text-4xl font-black">Informe de Rendimiento de Sedes</h1>
-                    <p id="informe-subtitle" class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 11 de Julio de 2025 (a menos de 6 meses del cierre de año)</p>
+                    <p id="informe-subtitle" class="text-md lg:text-lg text-gray-500 mt-2">Estado de avance al 28 de Julio de 2025 (a 5 meses del cierre de año)</p>
                 </header>
                 <section class="mb-8 border-b pb-8">
                     <h2 class="text-2xl font-bold text-center mb-6">Resumen General</h2>
@@ -266,15 +266,14 @@
             { id: 8, sede: "Copiapó", meta: 20144880, avance: 19606300, division: "Feña" },
             { id: 9, sede: "Coquimbo", meta: 7000000, avance: 0, division: "Feña" },
             { id: 10, sede: "Coronel", meta: 52200000, avance: 48256289, division: "Feña" },
-            { id: 11, sede: "Curicó", meta: 14079184, avance: 17555600, division: "Dani" },
+            { id: 11, sede: "Curicó", meta: 14079184, avance: 18268400, division: "Dani" },
             { id: 12, sede: "Gran Avenida", meta: 8577000, avance: 10975000, division: "Feña" },
-            { id: 13, sede: "Independencia", meta: 31707200, avance: 37835400, division: "Dani" },
+            { id: 13, sede: "Independencia", meta: 31707200, avance: 39621000, division: "Dani" },
             { id: 14, sede: "Iquique", meta: 8373120, avance: 0, division: "Dani" },
             { id: 15, sede: "La Florida", meta: 25519984, avance: 23427500, division: "Dani" },
             { id: 16, sede: "La Serena", meta: 7000000, avance: 0, division: "Feña" },
             { id: 17, sede: "Las Condes", meta: 10500000, avance: 7813600, division: "Dani" },
-            // --- ¡CAMBIO REALIZADO AQUÍ! ---
-            { id: 18, sede: "Linares", meta: 45000000, avance: 36000000, division: "Dani" },
+            { id: 18, sede: "Linares", meta: 45000000, avance: 39999986, division: "Dani" },
             { id: 19, sede: "Los Andes", meta: 15456807, avance: 6000000, division: "Dani" },
             { id: 20, sede: "Los Ángeles", meta: 7767200, avance: 0, division: "Feña" },
             { id: 21, sede: "Maipú", meta: 38080000, avance: 0, division: "Feña" },
@@ -295,13 +294,12 @@
             { id: 36, sede: "San Fernando", meta: 39854000, avance: 19800000, division: "Feña" },
             { id: 37, sede: "Santa Cruz", meta: 22497000, avance: 0, division: "Feña" },
             { id: 38, sede: "Talagante", meta: 7000000, avance: 0, division: "Feña" },
-            // --- ¡CAMBIO REALIZADO AQUÍ! ---
             { id: 39, sede: "Talca", meta: 66064500, avance: 72718008, division: "Dani" },
-            { id: 40, sede: "Temuco", meta: 68257690, avance: 46204000, division: "Dani" },
-            { id: 41, sede: "Valdivia", meta: 33067104, avance: 10234000, division: "Feña" },
+            { id: 40, sede: "Temuco", meta: 68257690, avance: 51204000, division: "Dani" },
+            { id: 41, sede: "Valdivia", meta: 33067104, avance: 17234000, division: "Feña" },
             { id: 42, sede: "Valparaíso", meta: 28224000, avance: 32500000, division: "Dani" },
             { id: 43, sede: "Villa Alemana", meta: 52932800, avance: 24890000, division: "Dani" },
-            { id: 44, sede: "Viña del mar", meta: 13261920, avance: 12750000, division: "Dani" }
+            { id: 44, sede: "Viña del mar", meta: 13261920, avance: 15400000, division: "Dani" }
         ].map(d => ({...d, percent: d.meta > 0 ? (d.avance / d.meta) * 100 : 0 }));
 
         let currentFilter = 'Todos';
@@ -404,9 +402,9 @@
             if (currentFilter === 'Todos') {
                 // --- ¡CAMBIO REALIZADO AQUÍ! ---
                 totalMeta = 1860000000;
-                totalAvance = 1441352160;
+                totalAvance = 1463291454;
                 totalBrecha = totalMeta - totalAvance;
-                totalPercent = 77;
+                totalPercent = 79;
             } else {
                 totalMeta = data.reduce((sum, sede) => sum + sede.meta, 0);
                 totalAvance = data.reduce((sum, sede) => sum + sede.avance, 0);
